@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+myenv/
+time_env/
+
+# Environment / secrets
+.env
+database.ini
+
+# VS Code
+.vscode/
