@@ -3,10 +3,17 @@ import psycopg2
 from datetime import datetime
 
 # helper function to set up connection 
+'''
 def _load() -> psycopg2.extensions.connection:
     return psycopg2.connect(**load_db_config())
+'''
 
-
+def get_connection():
+    host, database, user, password, port = get_database_credentials()
+    return psycopg2.connect(
+        host=host, dbname=database, user=user,
+        password=password, port=port, sslmode="require"
+    )
 # add consultant - returnes id
 def add_consultant(name: str, email: str) -> int:
 
