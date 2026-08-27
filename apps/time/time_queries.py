@@ -1,12 +1,24 @@
-from shared.config import load_db_config
+from shared.credentials import get_database_credentials
 import psycopg2
 from datetime import datetime
 
 # helper function to set up connection 
-'''
-def _load() -> psycopg2.extensions.connection:
-    return psycopg2.connect(**load_db_config())
-'''
+def get_connection() -> psycopg2.extensions.connection:
+
+
+    host, database, user, password, port = get_database_credentials()
+
+   
+    connection =  psycopg2.connect(
+        host=host,
+        dbname=database,
+        user=user,
+        password=password,
+        port=port,
+        sslmode="require"
+    )
+
+    return connection    
 
 def get_connection():
     host, database, user, password, port = get_database_credentials()
@@ -19,7 +31,7 @@ def add_consultant(name: str, email: str) -> int:
 
     try:
         # connect to database
-        with _load() as con:
+        with get_connection() as con:
             with con.cursor() as cursor:
                 # execute query
                 cursor.execute(
@@ -41,13 +53,13 @@ def add_customer(name: str) -> int:
 
     try:
         # connect to database
-        with _load() as con:
+        with get_connection() as con:
             with con.cursor() as cursor:
                 # execute query
                 cursor.execute(
                     '''
-                    INSERT INTO customer (name)
-                    VALUES (%s, %s) RETURNING id
+                    INSERT INTO customers (name)
+                    VALUES (%s) RETURNING id
                     ''',
                     (name, ),
                 )
@@ -58,44 +70,72 @@ def add_customer(name: str) -> int:
         print('Database error: ', e)
 
 
-# find consultant by email - return the id, name
-def find_consultant(email: str) -> tuple:
+# find consultant by email - return the id 
+def find_consultant(email: str) -> int | None:
      
     try:
         # connect to database
-        with _load() as con:
+        with get_connection() as con:
             with con.cursor() as cursor:
                 # execute query
                 cursor.execute(
                     '''
-                    SELECT id, name
+                    SELECT id
                     FROM consultants
                     WHERE email = %s
                     ''',
                     (email, ),
                 )
-                # fetch (id, name) - return tuple
-                consultant = cursor.fetchone()
-                return consultant
+                # fetch id - return id or None
+                result = cursor.fetchone()
+                if result is None:
+                    return None
+                else:
+                    return result[0]
     except (Exception, psycopg2.DatabaseError) as e:
         print('Database error: ', e)
 
 
-# add time_entrie
-def add_time_entrie(
+# find customer return id
+def find_customer(name: str) -> int | None:
+    try:
+        # connect to database
+        with get_connection() as con:
+            with con.cursor() as cursor:
+                # execute query
+                cursor.execute(
+                    '''
+                    SELECT id
+                    FROM customers
+                    WHERE name = %s
+                    ''',
+                    (name, ),
+                )
+                # fetch id - return id / None
+                result = cursor.fetchone()
+                if result is None:
+                    return None
+                else:
+                    return result[0]
+    except (Exception, psycopg2.DatabaseError) as e:
+        print('Database error: ', e)
+
+
+# add time entry
+def add_time_entry(
         consultant_id: int, customer_id: int,
         start_time: datetime, end_time: datetime, lunch_break: int
-) -> None:
+) -> tuple | None:
 
     try:
         # connect to database
-        with _load() as con:
+        with get_connection() as con:
             with con.cursor() as cursor:
                 # execute query
                 cursor.execute(
                     '''
                     INSERT INTO time_entries
-                    (consulant_id, customer_id, start_time, end_time, lunch_break)
+                    (consultant_id, customer_id, start_time, end_time, lunch_break)
                     VALUES (%s, %s, %s, %s, %s) RETURNING id, consultant_id, customer_id
                     ''',
                     (consultant_id, customer_id, start_time, end_time, lunch_break),

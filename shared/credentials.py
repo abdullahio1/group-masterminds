@@ -7,23 +7,24 @@ from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobClient, BlobServiceClient
 from azure.core.exceptions import ResourceExistsError
 import logging
+from functools import lru_cache
 
 
 
 #Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
-
 
 # Azure Key Vault configuration
 KEY_VAULT_URL = os.getenv("AZURE_KEY_VAULT_URL", "https://kv-groupmasterminds.vault.azure.net/")
 
 
+@lru_cache(maxsize=1)
 def get_database_credentials():
     """Get database credentials from Azure Key Vault or environment variables"""
     try:
         # Try to get credentials from Azure Key Vault first
-        if KEY_VAULT_URL and KEY_VAULT_URL != "https://kv-groupmasterminds.vault.azure.net/":
+        if KEY_VAULT_URL:
             logger.info("Attempting to get credentials from Azure Key Vault...")
             credential = DefaultAzureCredential()
             secret_client = SecretClient(vault_url=KEY_VAULT_URL, credential=credential)
@@ -38,20 +39,11 @@ def get_database_credentials():
             logger.info(f"Successfully retrieved credentials from Azure Key Vault")
             logger.info(f"Connecting to: host={host}, database={database}, user={user}, port={port}")
             logger.debug(f"Password length: {len(password)} characters")  # Don't log actual password
+
             return host, database, user, password, port
-            
+
+  
     except Exception as e:
         logger.warning(f"Could not get credentials from Key Vault: {e}")
-        logger.info("Falling back to environment variables...")
-    
-    # Fallback to environment variables
-    host = os.getenv("POSTGRES_HOST", "localhost")
-    database = os.getenv("POSTGRES_DB", "timemanagement")
-    user = os.getenv("POSTGRES_USER", "postgres")
-    password = os.getenv("POSTGRES_PASSWORD", "")
-    port = os.getenv("POSTGRES_PORT", "5432")
-    
-    logger.info("Using credentials from environment variables")
-    logger.info(f"Connecting to: host={host}, database={database}, user={user}, port={port}")
-    logger.debug(f"Password length: {len(password)} characters")  # Don't log actual password
-    return host, database, user, password, port
+               
+
