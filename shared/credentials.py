@@ -15,11 +15,9 @@ from functools import lru_cache
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
-
-#KEY_VAULT_URL = os.getenv("AZURE_KEY_VAULT_URL")
-
 # Azure Key Vault configuration
-KEY_VAULT_URL = "https://kv-groupmasterminds.vault.azure.net/"
+KEY_VAULT_URL = os.getenv("AZURE_KEY_VAULT_URL", "https://kv-groupmasterminds.vault.azure.net/")
+
 
 @lru_cache(maxsize=1)
 def get_database_credentials():

@@ -1,19 +1,14 @@
 from shared.credentials import get_database_credentials
 import psycopg2
 from datetime import datetime
-import time
 
 # helper function to set up connection 
 def get_connection() -> psycopg2.extensions.connection:
 
-    start = time.perf_counter()
 
     host, database, user, password, port = get_database_credentials()
 
-    print(f"Getting credentials took {time.perf_counter() - start:.2f} seconds")
-
-    start = time.perf_counter()
-
+   
     connection =  psycopg2.connect(
         host=host,
         dbname=database,
@@ -23,9 +18,8 @@ def get_connection() -> psycopg2.extensions.connection:
         sslmode="require"
     )
 
-    print(f"PostgreSQL connection took {time.perf_counter() - start:.2f} seconds")
+    return connection    
 
-    return connection
 
 # add consultant - returnes id
 def add_consultant(name: str, email: str) -> int:
@@ -87,7 +81,7 @@ def find_consultant(email: str) -> int | None:
                     ''',
                     (email, ),
                 )
-                # fetch id return id or None
+                # fetch id - return id or None
                 result = cursor.fetchone()
                 if result is None:
                     return None
@@ -122,7 +116,7 @@ def find_customer(name: str) -> int | None:
         print('Database error: ', e)
 
 
-# add time_entrie
+# add time entry
 def add_time_entry(
         consultant_id: int, customer_id: int,
         start_time: datetime, end_time: datetime, lunch_break: int
