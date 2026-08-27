@@ -14,3 +14,7 @@ database.ini
 
 # VS Code
 .vscode/
+
+# api
+.postman/
+postman/

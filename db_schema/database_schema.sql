@@ -64,23 +64,3 @@ CREATE TABLE time_entries (
             tsrange(start_time, end_time, '[)') WITH &&
         )
 );
-
-'''
-
-INSERT INTO consultants (name, email) 
-Values(%s, %s)
-(name, email)
-
-INSERT INTO customer (name)
-VALUES (%S, %S)
-(name, )
-
-SELECT id, name
-FROM consultant
-WHERE email = %s
-RETURNING id, name
-
-INSERT INTO time_entries
-(consulant_id, customer_id, start_time, end_time, lunch_break)
-VALUES (%s, %s, %s, %s, %s)
-'''
