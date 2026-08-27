@@ -1,6 +1,6 @@
 
 -- create the consultants table
-CREATE TABLE consultants (
+CREATE TABLE IF NOT EXISTS consultants (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -13,7 +13,7 @@ CREATE TABLE consultants (
 );
 
 -- create the customers table
-CREATE TABLE customers (
+CREATE TABLE IF NOT EXISTS  customers (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
 
@@ -25,7 +25,7 @@ CREATE TABLE customers (
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 -- create the time_entries table
-CREATE TABLE time_entries (
+CREATE TABLE IF NOT EXISTS  time_entries (
     id SERIAL PRIMARY KEY,
 
     consultant_id INTEGER NOT NULL,
