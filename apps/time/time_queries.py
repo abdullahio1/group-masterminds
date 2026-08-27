@@ -1,18 +1,38 @@
-from shared.config import load_db_config
+from shared.credentials import get_database_credentials
 import psycopg2
 from datetime import datetime
+import time
 
 # helper function to set up connection 
-def _load() -> psycopg2.extensions.connection:
-    return psycopg2.connect(**load_db_config())
+def get_connection() -> psycopg2.extensions.connection:
 
+    start = time.perf_counter()
+
+    host, database, user, password, port = get_database_credentials()
+
+    print(f"Getting credentials took {time.perf_counter() - start:.2f} seconds")
+
+    start = time.perf_counter()
+
+    connection =  psycopg2.connect(
+        host=host,
+        dbname=database,
+        user=user,
+        password=password,
+        port=port,
+        sslmode="require"
+    )
+
+    print(f"PostgreSQL connection took {time.perf_counter() - start:.2f} seconds")
+
+    return connection
 
 # add consultant - returnes id
 def add_consultant(name: str, email: str) -> int:
 
     try:
         # connect to database
-        with _load() as con:
+        with get_connection() as con:
             with con.cursor() as cursor:
                 # execute query
                 cursor.execute(
@@ -34,7 +54,7 @@ def add_customer(name: str) -> int:
 
     try:
         # connect to database
-        with _load() as con:
+        with get_connection() as con:
             with con.cursor() as cursor:
                 # execute query
                 cursor.execute(
@@ -56,7 +76,7 @@ def find_consultant(email: str) -> int | None:
      
     try:
         # connect to database
-        with _load() as con:
+        with get_connection() as con:
             with con.cursor() as cursor:
                 # execute query
                 cursor.execute(
@@ -81,7 +101,7 @@ def find_consultant(email: str) -> int | None:
 def find_customer(name: str) -> int | None:
     try:
         # connect to database
-        with _load() as con:
+        with get_connection() as con:
             with con.cursor() as cursor:
                 # execute query
                 cursor.execute(
@@ -110,7 +130,7 @@ def add_time_entry(
 
     try:
         # connect to database
-        with _load() as con:
+        with get_connection() as con:
             with con.cursor() as cursor:
                 # execute query
                 cursor.execute(
